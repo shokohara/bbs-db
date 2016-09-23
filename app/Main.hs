@@ -18,15 +18,22 @@ instance ToJSON Article
 instance FromJSON Article
 
 type API  = "articles" :> Get '[JSON] [Article]
+  :<|> "articles" :> Capture "id" Int :> Get '[JSON] Article
 
 api :: Proxy API
 api = Proxy
 
+article :: Article
+article = Article 1 "first article" "male"
 articles :: [Article]
-articles = [ Article 1 "first article" "male" ]
+articles = [ article ]
 
 server :: Server API
-server = pure articles
+server = return articles
+ :<|> a
+   where
+     a :: Int -> Handler Article
+     a x = return article
 
 main :: IO ()
 main = do
