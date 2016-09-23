@@ -17,8 +17,16 @@ data Article = Article { id :: Int, header :: String, sex :: String } deriving G
 instance ToJSON Article
 instance FromJSON Article
 
+instance FromFormUrlEncoded Article where
+  fromFormUrlEncoded inputs = Article <$> lkp "id" <*> lkp "header" <*> lkp "sex"
+    where
+      lkp l = case lookup l inputs of
+                Nothing -> Left $ "label " ++ Text.unpack l ++ " not found"
+                Just v -> Right $ read (Text.unpack v)
+
 type API  = "articles" :> Get '[JSON] [Article]
   :<|> "articles" :> Capture "id" Int :> Get '[JSON] Article
+  :<|> "articles" :> ReqBody '[JSON, FormUrlEncoded] Article :> Post '[JSON] Article
 
 api :: Proxy API
 api = Proxy
@@ -31,9 +39,12 @@ articles = [ article ]
 server :: Server API
 server = return articles
  :<|> a
-   where
-     a :: Int -> Handler Article
-     a x = return article
+  :<|> createArticle
+    where
+      a :: Int -> Handler Article
+      a x = return article
+      createArticle :: Article -> Handler Article
+      createArticle v = return v
 
 main :: IO ()
 main = do
