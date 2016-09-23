@@ -1,52 +1,39 @@
-{-# LANGUAGE DataKinds #-}
-{-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE TypeOperators #-}
-{-# LANGUAGE OverloadedStrings #-}
-
 module Main where
 
 import Lib
-import Data.Aeson
-import GHC.Generics
-import qualified Network.Wai.Handler.Warp as Warp
-import Servant
-import qualified Data.Text as Text
-
-data Article = Article { id :: Int, header :: String, sex :: String } deriving Generic
-
-instance ToJSON Article
-instance FromJSON Article
-
-instance FromFormUrlEncoded Article where
-  fromFormUrlEncoded inputs = Article <$> lkp "id" <*> lkp "header" <*> lkp "sex"
-    where
-      lkp l = case lookup l inputs of
-                Nothing -> Left $ "label " ++ Text.unpack l ++ " not found"
-                Just v -> Right $ read (Text.unpack v)
-
-type API  = "articles" :> Get '[JSON] [Article]
-  :<|> "articles" :> Capture "id" Int :> Get '[JSON] Article
-  :<|> "articles" :> ReqBody '[JSON, FormUrlEncoded] Article :> Post '[JSON] Article
-
-api :: Proxy API
-api = Proxy
-
-article :: Article
-article = Article 1 "first article" "male"
-articles :: [Article]
-articles = [ article ]
-
-server :: Server API
-server = return articles
- :<|> a
-  :<|> createArticle
-    where
-      a :: Int -> Handler Article
-      a x = return article
-      createArticle :: Article -> Handler Article
-      createArticle v = return v
+import Models
+import Api
+import Config
+import Control.Monad.Except
+import Network.Wai.Handler.Warp (run)
+import Safe
+import System.Environment (lookupEnv)
+import Database.Persist.Postgresql
 
 main :: IO ()
 main = do
-  putStrLn "Listening on port 8080"
-  Warp.run 8080 $ serve api server
+  env <- lookupSetting "ENV" Development
+  port <- lookupSetting "PORT" 8080
+  pool <- makePool env
+  let cfg = Config { getPool = pool, getEnv = env }
+      logger = setLogger env
+  runSqlPool doMigrations pool
+  putStrLn $ "Listening on port " ++ show port
+  run port $ logger $ app cfg
+
+lookupSetting :: Read a => String -> a -> IO a
+lookupSetting env def = do
+    maybeValue <- lookupEnv env
+    case maybeValue of
+        Nothing ->
+            return def
+        Just str ->
+            maybe (handleFailedRead str) return (readMay str)
+  where
+    handleFailedRead str =
+        error $ mconcat
+            [ "Failed to read [["
+            , str
+            , "]] for environment variable "
+            , env
+            ]
