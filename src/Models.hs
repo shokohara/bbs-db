@@ -13,17 +13,17 @@
 
 module Models where
 
-import           Control.Monad.Reader
-import           Data.Aeson
-import Data.Time
-import           Database.Persist.Sql
-import           Database.Persist.TH  (mkMigrate, mkPersist, persistLowerCase,
-                                       share, sqlSettings)
-import           GHC.Generics         (Generic)
 import Config
+import Control.Monad.Reader
+import Data.Aeson
+import Data.Time
+import Database.Persist.Sql
+import Database.Persist.TH (mkMigrate, mkPersist, persistLowerCase, share, sqlSettings)
+import GHC.Generics (Generic)
 
 share [mkPersist sqlSettings, mkMigrate "migrateAll"] [persistLowerCase|
 Article json
+  postId Int
   skypeId String
   name String
   title String

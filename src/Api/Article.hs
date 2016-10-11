@@ -1,10 +1,10 @@
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE GADTs #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeOperators #-}
-{-# LANGUAGE FlexibleContexts           #-}
-{-# LANGUAGE GADTs                      #-}
-{-# LANGUAGE MultiParamTypeClasses      #-}
-{-# LANGUAGE OverloadedStrings          #-}
-{-# LANGUAGE TypeFamilies               #-}
 
 module Api.Article where
 import Config (App (..), Config (..))
@@ -39,7 +39,7 @@ findArticle v = do
 
 createArticle :: Article -> App (Entity Article)
 createArticle v = do
-  article <- runDb $ selectFirst [ArticleSkypeId ==. articleSkypeId v, ArticleName ==. articleName v, ArticleTags ==. articleTags v, ArticleBody ==. articleBody v, ArticleSex ==. articleSex v, ArticleCreatedAt ==. articleCreatedAt v] []
+  article <- runDb $ selectFirst [ArticlePostId ==. articlePostId v, ArticleSkypeId ==. articleSkypeId v, ArticleName ==. articleName v, ArticleTags ==. articleTags v, ArticleBody ==. articleBody v, ArticleSex ==. articleSex v, ArticleCreatedAt ==. articleCreatedAt v] []
   case article of
     Nothing -> do
       articleId <- runDb . insert $ v
@@ -52,7 +52,7 @@ createArticle v = do
 createArticles :: [Article] -> App [Entity Article]
 createArticles as = do
   x <- forM as $ \v -> do
-    article <- runDb $ selectFirst [ArticleSkypeId ==. articleSkypeId v, ArticleName ==. articleName v, ArticleTags ==. articleTags v, ArticleBody ==. articleBody v, ArticleSex ==. articleSex v, ArticleCreatedAt ==. articleCreatedAt v] []
+    article <- runDb $ selectFirst [ArticlePostId ==. articlePostId v, ArticleSkypeId ==. articleSkypeId v, ArticleName ==. articleName v, ArticleTags ==. articleTags v, ArticleBody ==. articleBody v, ArticleSex ==. articleSex v, ArticleCreatedAt ==. articleCreatedAt v] []
     case article of
       Nothing -> do
         articleId <- runDb . insert $ v
