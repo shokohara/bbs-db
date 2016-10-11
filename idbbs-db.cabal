@@ -1,8 +1,8 @@
-name:                bbs-db
+name:                idbbs-db
 version:             0.1.0.0
 synopsis:            Initial project template from stack
 description:         Please see README.md
-homepage:            https://github.com/githubuser/bbs-db#readme
+homepage:            https://github.com/githubuser/idbbs-db#readme
 license:             BSD3
 license-file:        LICENSE
 author:              Author name here
@@ -38,7 +38,7 @@ library
                      , persistent-postgresql
   default-language:    Haskell2010
 
-executable bbs-db-exe
+executable idbbs-db-exe
   hs-source-dirs:      app
   main-is:             Main.hs
   ghc-options:         -threaded -rtsopts -with-rtsopts=-N
@@ -51,18 +51,18 @@ executable bbs-db-exe
                      , warp
                      , servant-server
                      , persistent-postgresql
-                     , bbs-db
+                     , idbbs-db
   default-language:    Haskell2010
 
-test-suite bbs-db-test
+test-suite idbbs-db-test
   type:                exitcode-stdio-1.0
   hs-source-dirs:      test
   main-is:             Spec.hs
   build-depends:       base
-                     , bbs-db
+                     , idbbs-db
   ghc-options:         -threaded -rtsopts -with-rtsopts=-N
   default-language:    Haskell2010
 
 source-repository head
   type:     git
-  location: https://github.com/githubuser/bbs-db
+  location: https://github.com/githubuser/idbbs-db
