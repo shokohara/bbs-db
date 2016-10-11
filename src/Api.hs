@@ -1,5 +1,4 @@
 {-# LANGUAGE DataKinds #-}
-
 {-# LANGUAGE TypeOperators #-}
 
 module Api (app) where
@@ -16,10 +15,10 @@ import Servant
 import           Data.Int                    (Int64)
 
 userApp :: Config -> Application
-userApp cfg = serve (Proxy :: Proxy ArticleAPI) (appToServer cfg)
+userApp cfg = serve (Proxy :: Proxy ArticleAPI) $ appToServer cfg
 
 convertApp :: Config -> App :~> ExceptT ServantErr IO
-convertApp cfg = Nat (flip runReaderT cfg . runApp)
+convertApp cfg = Nat $ flip runReaderT cfg . runApp
 
 appToServer :: Config -> Server ArticleAPI
 appToServer cfg = enter (convertApp cfg) articleServer
